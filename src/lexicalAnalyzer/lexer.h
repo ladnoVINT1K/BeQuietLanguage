@@ -6,7 +6,7 @@ using std::isalnum;
 using std::isdigit;
 using std::find;
 
-const enum class Types { Keyword, Identificator, Literal, Operation, Punctuation, ELSE, END };
+enum class Types { Keyword, Identificator, Literal, Operation, Punctuation, ELSE, END };
 
 string type_to_string(Types type);
 
