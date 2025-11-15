@@ -154,6 +154,12 @@ void Syntaxer::State() {
 	expect(Types::Punctuation, ";");
 }
 
+void Syntaxer::MState() {
+	while (!match("}")) {
+		State();
+	}
+}
+
 void Syntaxer::IfState() {
 	expect(Types::Keyword, "if");
 	expect(Types::Punctuation, "(");
@@ -161,6 +167,7 @@ void Syntaxer::IfState() {
 	expect(Types::Punctuation, ")");
 	expect(Types::Punctuation, "{");
 	State();
+	MState();
 	expect(Types::Punctuation, "}");
 	IfStateTail();
 }
@@ -170,6 +177,7 @@ void Syntaxer::IfStateTail() {
 		expect(Types::Keyword, "else");
 		expect(Types::Punctuation, "{");
 		State();
+		MState();
 		expect(Types::Punctuation, "}");
 	}
 }
@@ -193,6 +201,7 @@ void Syntaxer::ForStateTail() {
 	expect(Types::Punctuation, ")");
 	expect(Types::Punctuation, "{");
 	State();
+	MState();
 	expect(Types::Punctuation, "}");
 }
 
@@ -213,6 +222,7 @@ void Syntaxer::WhileState() {
 	expect(Types::Punctuation, ")");
 	expect(Types::Punctuation, "{");
 	State();
+	MState();
 	expect(Types::Punctuation, "}");
 }
 

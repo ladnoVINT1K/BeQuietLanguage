@@ -24,6 +24,7 @@ private:
 	void Param();
 	void FuncR();
 	void State();
+	void MState();
 	void IfState();
 	void IfStateTail();
 	void ForState();
