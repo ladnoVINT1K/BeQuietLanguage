@@ -14,7 +14,7 @@ using std::deque;
 struct info {
     Types t_;
     int d_ = 0;
-    string v_;
+    string v_ = "";
 
     info(Types a) : t_(a) {}
     info(Types a, int b) : t_(a), d_(b) {}

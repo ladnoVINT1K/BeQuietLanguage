@@ -41,12 +41,9 @@ void type_stack::check_uno() {
     if (c.d_ != 0) throw std::runtime_error("can't use uno oper for massive");
 
     if (op == "-" and c.t_ == Types::Num) {
-        c.v_ = "-" + c.v_;
         push_stack(c);
         return;
     } else if (op == "!" and c.t_ == Types::Bool) {
-        if (c.v_ == "true") c.v_ = "false";
-        else c.v_ = "true";
         push_stack(c);
         return;
     } else {
@@ -68,7 +65,25 @@ void type_stack::check_bin() {
 
     if (c1.d_ != 0 or c2.d_ != 0 or c1.t_ != c2.t_) throw std::runtime_error("can't use bin oper for massive");
     else {
-        // too hard
+        if (c1.t_ == Types::Bool && (op == "==" || op == "!=" || op == "and" || op == "or")) {
+            info res(Types::Bool, 0);
+            push_stack(res);
+            return;
+        } else if (c1.t_ == Types::Str && (op == "+" || op == "==" || op == "!=")) {
+            info res(Types::Str);
+            push_stack(res);
+            return;
+        } else if (c1.t_ == Types::Num && 
+            (op == "+" || op == "-" || op == "*" || op == "/" || op == "%" ||
+            op == "==" || op == "!=" || op == "<" || op == ">" ||
+            op == "<=" || op == ">=" || op == "+=" || op == "-=" ||
+            op == "*=" || op == "/=" || op == "%=")) {
+            info res(Types::Num, 0);
+            push_stack(res);
+            return;
+        } else {
+            throw std::runtime_error("error in check_bin!");
+        }
     }
 }
 
