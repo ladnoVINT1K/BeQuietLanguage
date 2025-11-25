@@ -13,10 +13,9 @@ void tree_tid::push_id(string name, info i) {
     return;
 }
 
-std::optional<Types> tree_tid::check_exist(string name) {
+std::optional<info> tree_tid::check_exist(string name) {
     for (auto i : s_) {
-        // i - unordered_map
-        if (i.find(name) != i.end()) return ((i.find(name))->second).t_;
+        if (i.find(name) != i.end()) return (i.find(name))->second;
     }
     return {};
 }

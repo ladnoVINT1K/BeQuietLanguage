@@ -26,7 +26,7 @@ public:
     tree_tid();
 
     void push_id(string name, info i);
-    std::optional<Types> check_exist(string name);
+    std::optional<info> check_exist(string name);
     void create_tid();
     void delete_tid();
 private:
