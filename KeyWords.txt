@@ -1,7 +1,7 @@
 def 
 int
 float
-char
+string
 let
 if
 else
