@@ -6,19 +6,25 @@
 #include <optional>
 #include <stdexcept>
 	
+enum class TypesId {
+    Int,
+    Float,
+    Str,
+    Bool
+};
 
 using std::string;
 using std::unordered_map;
 using std::deque;
 
 struct info {
-    Types t_;
+    TypesId t_;
     int d_ = 0;
     string v_ = "";
 
-    info(Types a) : t_(a) {}
-    info(Types a, int b) : t_(a), d_(b) {}
-    info(Types a, int b, string c) : t_(a), d_(b), v_(c) {}
+    info(TypesId a) : t_(a) {}
+    info(TypesId a, int b) : t_(a), d_(b) {}
+    info(TypesId a, int b, string c) : t_(a), d_(b), v_(c) {}
 };
 
 class tree_tid {

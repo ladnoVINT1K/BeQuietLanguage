@@ -34,12 +34,23 @@ void type_stack::push_stack(string lex, int d) {
 }
 
 void type_stack::push_stack(info i) {
+    if (i.t_ == TypesId::Float or i.t_ == TypesId::Int) {
+        Operators_.push_front({Types::Num, i.d_, i.v_});
+    } else if (i.t_ == TypesId::Str) {
+        Operators_.push_front({Types::Str, i.d_, i.v_});
+    } else {
+        Operators_.push_front({Types::Bool, i.d_, i.v_});
+    }
+    return;
+}
+
+void type_stack::push_stack(infoStack i) {
     Operators_.push_front(i);
     return;
 }
 
 void type_stack::check_uno() {
-    info c = Operators_.front(); Operators_.pop_front();
+    infoStack c = Operators_.front(); Operators_.pop_front();
     string op = Operations_.front(); Operations_.pop_front();
 
     if (c.d_ != 0) throw std::runtime_error("can't use uno oper for massive");
@@ -56,8 +67,8 @@ void type_stack::check_uno() {
 }
 
 void type_stack::check_bin() {
-    info c1 = Operators_.front(); Operators_.pop_front();
-    info c2 = Operators_.front(); Operators_.pop_front();    
+    infoStack c1 = Operators_.front(); Operators_.pop_front();
+    infoStack c2 = Operators_.front(); Operators_.pop_front();    
     string op = Operations_.front(); Operations_.pop_front();
     if (op == "=") {
         if (c1.d_ == c2.d_ and c1.t_ == c2.t_) c2 = c1;
@@ -69,11 +80,11 @@ void type_stack::check_bin() {
     if (c1.d_ != 0 or c2.d_ != 0) throw std::runtime_error("can't use bin oper for massive");
     else {
         if (c1.t_ == Types::Bool && (op == "==" || op == "!=" || op == "and" || op == "or")) {
-            info res(Types::Bool, 0);
+            infoStack res(Types::Bool, 0);
             push_stack(res);
             return;
         } else if (c1.t_ == Types::Str && (op == "+" || op == "==" || op == "!=")) {
-            info res(Types::Str);
+            infoStack res(Types::Str);
             push_stack(res);
             return;
         } else if (c1.t_ == Types::Num && 
@@ -81,7 +92,7 @@ void type_stack::check_bin() {
             op == "==" || op == "!=" || op == "<" || op == ">" ||
             op == "<=" || op == ">=" || op == "+=" || op == "-=" ||
             op == "*=" || op == "/=" || op == "%=")) {
-            info res(Types::Num, 0);
+            infoStack res(Types::Num, 0);
             push_stack(res);
             return;
         } else {
@@ -91,12 +102,12 @@ void type_stack::check_bin() {
 }
 
 bool type_stack::check_if() {
-    info c = Operators_.front(); Operators_.pop_front();
+    infoStack c = Operators_.front(); Operators_.pop_front();
     if (c.t_ == Types::Bool or c.t_ == Types::Num and c.d_ == 0) return true;
     return false;
 }
 
-info type_stack::pop_stack() {
-    info c = Operators_.front(); Operations_.pop_front();
+infoStack type_stack::pop_stack() {
+    infoStack c = Operators_.front(); Operations_.pop_front();
     return c;
 }

@@ -3,7 +3,6 @@
 
 tree_tid::tree_tid() {
     s_.push_front({});
-    // s_.push_front({ {"inter", {Types::Num, 0, "12"}} });
 }
 
 void tree_tid::push_id(string name, info i) {
