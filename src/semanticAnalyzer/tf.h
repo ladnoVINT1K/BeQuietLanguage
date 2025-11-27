@@ -1,5 +1,5 @@
 #pragma once
-#include <unordered_map>
+#include <optional>
 #include <vector>
 #include <string>
 #include "types.h"
@@ -22,6 +22,7 @@ struct param {
 
 struct info_func {
     string name;
+    string unic_name;
     param res;
     vector<param> params;
 };
@@ -32,7 +33,6 @@ public:
 
     void new_func(info_func i);
     bool check_call(string name, vector<param> p);
-    Types stack_type(string name);
-private:
-    std::unordered_map<string, info_func> table_;
+    
+    vector<info_func> v_;
 };
