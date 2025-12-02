@@ -1,7 +1,7 @@
-#include "..\lexicalAnalyzer\lexer.h"
-#include "..\semanticAnalyzer\stack.h"
-#include "..\semanticAnalyzer\tf.h"
-#include "..\semanticAnalyzer\tid.h"
+#include "../lexicalAnalyzer/lexer.h"
+#include "../semanticAnalyzer/stack.h"
+#include "../semanticAnalyzer/tf.h"
+#include "../semanticAnalyzer/tid.h"
 
 class Syntaxer {
 public:
