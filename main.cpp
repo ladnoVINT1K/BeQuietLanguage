@@ -10,7 +10,7 @@ int main() {
         loadFromfile(in_key, trie);
         Lexer lexer("Program.txt", trie);
         Syntaxer syntaxer(lexer);
-        syntaxer.syntax();
+        if (syntaxer.syntax()) std::cout << "successful";
     } catch (pair<Lexem, pair<Types, string>> error) {
         std::cerr << type_to_string(error.first.type) << " " << error.first.value << '\n'
             << "in line:" << error.first.line << " column:" << error.first.column << '\n'
@@ -21,5 +21,9 @@ int main() {
             << "need " << type_to_string(error.second);
     } catch (Lexem error) {
         std::cerr << "where type in line: " << error.line << " column:" << error.column; 
+    } catch (string e) {
+        std::cerr << e;
+    } catch (const std::runtime_error& e) {
+        std::cerr << e.what() << '\n';
     }
 }
