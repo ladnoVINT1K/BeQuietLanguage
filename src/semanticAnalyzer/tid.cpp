@@ -26,7 +26,7 @@ void tree_tid::create_tid() {
 
 void tree_tid::delete_tid() {
     if (s_.size() == 1) 
-        throw std::runtime_error("don't delete root TID");
+        throw std::runtime_error("don't delete root TID :)");
     else {
         s_.pop_front();
     }

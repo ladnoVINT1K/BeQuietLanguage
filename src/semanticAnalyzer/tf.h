@@ -2,7 +2,6 @@
 #include <optional>
 #include <vector>
 #include <string>
-#include "types.h"
 
 using std::string;
 using std::vector;
@@ -33,6 +32,7 @@ public:
 
     void new_func(info_func i);
     bool check_call(string name, vector<param> p);
-    
+    info_func call_res(string name, vector<param> p);
+
     vector<info_func> v_;
 };

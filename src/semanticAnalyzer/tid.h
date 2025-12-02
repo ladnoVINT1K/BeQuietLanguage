@@ -1,21 +1,20 @@
 #pragma once
 #include <unordered_map>
-#include "types.h"
 #include <string>
 #include <deque>
 #include <optional>
 #include <stdexcept>
-	
+
 enum class TypesId {
     Int,
     Float,
-    Str,
-    Bool
+    Str
 };
 
 using std::string;
 using std::unordered_map;
 using std::deque;
+using std::optional;
 
 struct info {
     TypesId t_;
@@ -32,9 +31,9 @@ public:
     tree_tid();
 
     void push_id(string name, info i);
-    std::optional<info> check_exist(string name);
+    optional<info> check_exist(string name);
     void create_tid();
     void delete_tid();
 private:
-    deque<unordered_map<string, info>> s_; 
+    deque<unordered_map<string, info>> s_;
 };

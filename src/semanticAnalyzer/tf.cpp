@@ -8,7 +8,10 @@ tf::tf() {
 
 bool tf::check_call(string name, vector<param> p) {
     for (auto i : v_) {
-        if (i.name == name and i.params == p) {
+        if (i.name == name) {
+            for (int j = 0; j < i.params.size(); ++j) {
+                if ((i.params)[j].t_ != p[j].t_ or (i.params)[j].d_ != p[j].d_) return 0;
+            }
             return 1;
         }
     }
@@ -20,6 +23,17 @@ void tf::new_func(info_func i) {
     else {
         v_.push_back(i);
         return;
+    }
+}
+
+info_func tf::call_res(string name, vector<param> p) {
+    for (auto i : v_) {
+        if (i.name == name) {
+            for (int j = 0; j < i.params.size(); ++j) {
+                if ((i.params)[j].t_ != p[j].t_ or (i.params)[j].d_ != p[j].d_) return {};
+            }
+            return i;
+        }
     }
 }
 
