@@ -57,6 +57,7 @@ void Syntaxer::Declarations() {
 void Syntaxer::Var() {
 	Type();
 	id_ = curr_.value;
+	if (tid_.check_exist(id_)) throw std::runtime_error("redefinition of " + id_);
 	expectType(Types::Identificator);
 	if (match(";") or match(",") or match(")")) {
 		if (type_ == "let") throw std::runtime_error("let must be initialized");
@@ -67,6 +68,7 @@ void Syntaxer::Var() {
 	expect(Types::Operation, "=");
 	if (match("{")) {
 		list();
+		tid_.push_id(id_, info(to_idtype(type_), depth_));
 		depth_ = 0;
 	} else {
 		Expr();
