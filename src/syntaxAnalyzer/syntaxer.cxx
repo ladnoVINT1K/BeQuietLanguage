@@ -135,7 +135,7 @@ void Syntaxer::Params() {
 		id_ = curr_.value;
 		expectType(Types::Identificator);
 		if (tid_.check_exist(id_)) {
-			throw std::runtime_error("you’ve already declared a variable named " + id_);
+			throw std::runtime_error("youï¿½ve already declared a variable named " + id_);
 		}
 		func_.params.push_back(param_);
 		tid_.push_id(id_, info(to_idtype(type_), depth_));
@@ -149,7 +149,7 @@ void Syntaxer::Params() {
 			id_ = curr_.value;
 			expectType(Types::Identificator);
 			if (tid_.check_exist(id_)) {
-				throw std::runtime_error("you’ve already declared a variable named " + id_);
+				throw std::runtime_error("youï¿½ve already declared a variable named " + id_);
 			}
 			func_.params.push_back(param_);
 			tid_.push_id(id_, info(to_idtype(type_), depth_));
@@ -178,7 +178,7 @@ void Syntaxer::State() {
 		ReturnState();
 	} else if (match("output")) {
 		cout();
-	} else if (match("char") or match("int")
+	} else if (match("string") or match("int")
 		or match("float") or match("let") or match("massive")) {
 		Var();
 	} else {
