@@ -1,5 +1,5 @@
 #pragma once
-#include "trie.h"
+#include "trie.cxx"
 
 using std::isalpha;
 using std::isalnum;

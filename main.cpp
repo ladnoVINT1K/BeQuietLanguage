@@ -1,6 +1,6 @@
-#include "src/lexicalAnalyzer/lexer.h"
-#include "src/lexicalAnalyzer/trie.h"
-#include "src/syntaxAnalyzer/syntaxer.h"
+#include "src/lexicalAnalyzer/lexer.cxx"
+#include "src/lexicalAnalyzer/trie.cxx"
+#include "src/syntaxAnalyzer/syntaxer.cxx"
 
 int main() {
 
@@ -18,7 +18,7 @@ int main() {
     } catch (pair<Lexem, Types> error) {
         std::cerr << type_to_string(error.first.type) << " " << error.first.value << '\n'
             << "in line:" << error.first.line << " column:" << error.first.column << '\n'
-            << "need " << type_to_string(error.second);
+            << "need " << type_to_string(error.second) << '\n';
     } catch (Lexem error) {
         std::cerr << "where type in line: " << error.line << " column:" << error.column; 
     } catch (string e) {

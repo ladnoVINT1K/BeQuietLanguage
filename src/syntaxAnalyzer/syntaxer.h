@@ -1,9 +1,8 @@
-#include "../lexicalAnalyzer/lexer.h"
-#include "../semanticAnalyzer/stack.h"
-#include "../semanticAnalyzer/tf.h"
-#include "../semanticAnalyzer/tid.h"
+#include "../lexicalAnalyzer/lexer.cxx"
+#include "../semanticAnalyzer/stack.cpp"
+#include "../semanticAnalyzer/tf.cpp"
+#include "../semanticAnalyzer/tid.cpp"
 #include <stack>
-
 
 class Syntaxer {
 public:

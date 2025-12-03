@@ -1,3 +1,4 @@
+#pragma once
 #include "trie.h"
 
 void Trie::addString(string &s) {
