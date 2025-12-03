@@ -409,8 +409,8 @@ void Syntaxer::Iden() {
 }
 
 void Syntaxer::list() {
+	list_d.push("{");
 	expect(Types::Punctuation, "{");
-	++depth_;
 	while (!match("}")) {
 		if (match("{")) {
 			list();
@@ -422,9 +422,11 @@ void Syntaxer::list() {
 			Expr();
 			auto buff = stack_.pop_stack();
 			if (buff.t_ != to_sttype(type_)) throw std::runtime_error("wrong type in massive");
+			if (list_d.size() != depth_) throw std::runtime_error("wrong massive depth");
 		}
 	}
 	expect(Types::Punctuation, "}");
+	list_d.pop();
 }
 
 void Syntaxer::cin() {

@@ -2,6 +2,8 @@
 #include "../semanticAnalyzer/stack.h"
 #include "../semanticAnalyzer/tf.h"
 #include "../semanticAnalyzer/tid.h"
+#include <stack>
+
 
 class Syntaxer {
 public:
@@ -20,6 +22,7 @@ private:
 	info_func func_;
 	param param_;
 	int depth_;
+	std::stack <string> list_d;
 	Lexem curr_;
 	void NewToken();
 	void Prog();
