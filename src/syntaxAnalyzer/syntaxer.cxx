@@ -115,6 +115,7 @@ void Syntaxer::Func() {
 	ReturnState();
 	expect(Types::Punctuation, ";");
 	expect(Types::Punctuation, "}");
+	tid_.delete_tid();
 }
 
 void Syntaxer::TypeF() {
@@ -135,7 +136,7 @@ void Syntaxer::Params() {
 		id_ = curr_.value;
 		expectType(Types::Identificator);
 		if (tid_.check_exist(id_)) {
-			throw std::runtime_error("you�ve already declared a variable named " + id_);
+			throw std::runtime_error("you’ve already declared a variable named " + id_);
 		}
 		func_.params.push_back(param_);
 		tid_.push_id(id_, info(to_idtype(type_), depth_));
@@ -149,7 +150,7 @@ void Syntaxer::Params() {
 			id_ = curr_.value;
 			expectType(Types::Identificator);
 			if (tid_.check_exist(id_)) {
-				throw std::runtime_error("you�ve already declared a variable named " + id_);
+				throw std::runtime_error("you’ve already declared a variable named " + id_);
 			}
 			func_.params.push_back(param_);
 			tid_.push_id(id_, info(to_idtype(type_), depth_));
@@ -279,6 +280,7 @@ void Syntaxer::ReturnState() {
 void Syntaxer::Expr() {
 	E1();
 	while (match(",")) {
+		stack_.pop_stack();
 		NewToken();
 		E1();
 	}
@@ -364,8 +366,8 @@ void Syntaxer::E8() {
 		expect(Types::Punctuation, ")");
 	} else if (match("{")) {
 		expr_list();
-		stack_.push_stack(infoStack(listt, Types::Literal, depth_));
 		first = 1;
+		stack_.push_stack(infoStack(listt, Types::Literal, depth_));
 		depth_ = 0;
 	} else if (matchType(Types::Identificator)) {
 		string call_n = curr_.value;
@@ -385,12 +387,22 @@ void Syntaxer::E8() {
 				}
 			}
 			expect(Types::Punctuation, ")");
-			if (!tf_.check_call(call_n, call_)) throw std::runtime_error("don't find func " + call_n + "with this params");
+			if (!tf_.check_call(call_n, call_)) throw std::runtime_error("don't find func " + call_n + " with this params");
 			auto res = tf_.call_res(call_n, call_);
 			stack_.push_stack(res);
 		} else {
-			expr_ = call_n;
-			Iden();
+			auto buff = tid_.check_exist(call_n);
+			if (!buff) throw std::runtime_error(call_n + " not exist");
+			int dpth = 0;
+			while (match("[")) {
+				++dpth;
+				NewToken();
+				Expr();
+				if (stack_.pop_stack().t_ != typestack::Int) throw std::runtime_error("in [] must be int");
+				expect(Types::Operation, "]");
+			}
+			if (dpth > buff.value().d_) throw std::runtime_error("wrong massive depth");
+			stack_.push_stack(info(buff.value().t_, buff.value().d_ - dpth));
 		}
 	} else {
 		expr_ = curr_.value;
@@ -404,10 +416,10 @@ void Syntaxer::expr_list() {
 	expect(Types::Punctuation, "{");
 	while (!match("}")) {
 		if (match("{")) {
-			init_list();
+			expr_list();
 			while (match(",")) {
 				NewToken();
-				init_list();
+				expr_list();
 			}
 		} else {
 			if (first) {
@@ -429,20 +441,6 @@ void Syntaxer::expr_list() {
 	list_d.pop();
 }
 
-void Syntaxer::Iden() {
-	auto buff = tid_.check_exist(expr_);
-	if (!buff) throw std::runtime_error(expr_ + " not exist");
-	while (match("[")) {
-		++depth_;
-		NewToken();
-		Expr();
-		if (stack_.pop_stack().t_ != typestack::Int) throw std::runtime_error("in [] must be num");
-		expect(Types::Operation, "]");
-	}
-	stack_.push_stack(info(buff.value().t_, buff.value().d_ - depth_));
-	depth_ = 0;
-}
-
 void Syntaxer::init_list() {
 	list_d.push("{");
 	expect(Types::Punctuation, "{");
@@ -456,6 +454,13 @@ void Syntaxer::init_list() {
 		} else {
 			Expr();
 			auto buff = stack_.pop_stack();
+			if (type_ == "let") {
+				if (buff.t_ == typestack::Int) type_ = "int";
+				else if (buff.t_ == typestack::Float) type_ = "float";
+				else if (buff.t_ == typestack::Str) type_ = "string";
+				else throw std::runtime_error("wrong type in massive");
+				depth_ = list_d.size();
+			}
 			if (buff.t_ != to_sttype(type_)) throw std::runtime_error("wrong type in massive");
 			if (list_d.size() != depth_) throw std::runtime_error("wrong massive depth");
 		}
@@ -469,8 +474,18 @@ void Syntaxer::cin() {
 	expect(Types::Punctuation, "(");
 	id_ = curr_.value;
 	expectType(Types::Identificator);
-	tid_.check_exist(id_);
-	Iden();
+	auto buff = tid_.check_exist(id_);
+	if (!buff) throw std::runtime_error(id_ + " not exist");
+	int dpth = 0;
+	while (match("[")) {
+		++dpth;
+		NewToken();
+		Expr();
+		if (stack_.pop_stack().t_ != typestack::Int) throw std::runtime_error("in [] must be num");
+		expect(Types::Operation, "]");
+	}
+	if (dpth > buff.value().d_) throw std::runtime_error("wrong massive depth");
+	if (dpth < buff.value().d_) throw std::runtime_error("can't input massive");
 	expect(Types::Punctuation, ")");
 }
 

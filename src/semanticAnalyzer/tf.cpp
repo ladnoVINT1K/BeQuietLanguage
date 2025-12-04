@@ -8,7 +8,7 @@ tf::tf() {
 
 bool tf::check_call(string name, vector<param> p) {
     for (auto i : v_) {
-        if (i.name == name) {
+        if (i.name == name and p.size() == i.params.size()) {
             for (int j = 0; j < i.params.size(); ++j) {
                 if ((i.params)[j].t_ != p[j].t_ or (i.params)[j].d_ != p[j].d_) return 0;
             }

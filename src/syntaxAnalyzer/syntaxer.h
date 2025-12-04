@@ -48,7 +48,6 @@ private:
 	void E6();
 	void E7();
 	void E8();
-	void Iden();
 	void init_list();
 	void expr_list();
 	void cin();
