@@ -3,7 +3,7 @@
 #include <string>
 #include <stdexcept>
 #include <algorithm>
-#include "../lexicalAnalyzer/lexer.h"
+#include "../lexicalAnalyzer/lexer.cxx"
 #include <regex>
 #include "tid.h"
 #include "tf.h"
