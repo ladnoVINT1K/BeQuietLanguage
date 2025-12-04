@@ -365,6 +365,8 @@ void Syntaxer::E8() {
 	} else if (match("{")) {
 		expr_list();
 		stack_.push_stack(infoStack(listt, Types::Literal, depth_));
+		first = 1;
+		depth_ = 0;
 	} else if (matchType(Types::Identificator)) {
 		string call_n = curr_.value;
 		NewToken();
