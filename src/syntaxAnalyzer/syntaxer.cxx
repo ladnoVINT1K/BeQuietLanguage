@@ -130,6 +130,7 @@ void Syntaxer::TypeF() {
 void Syntaxer::Params() {
 	if (!match(")")) {
 		Type();
+		if (type_ == "let") throw std::runtime_error("param can't be let");
 		param_.d_ = depth_;
 		func_.unic_name += type_;
 		param_.t_ = to_ftype(type_);
@@ -144,6 +145,7 @@ void Syntaxer::Params() {
 		while (match(",")) {
 			NewToken();
 			Type();
+			if (type_ == "let") throw std::runtime_error("param can't be let");
 			param_.d_ = depth_;
 			func_.unic_name += type_;
 			param_.t_ = to_ftype(type_);
