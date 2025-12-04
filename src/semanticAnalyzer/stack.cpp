@@ -8,7 +8,7 @@ type_stack::type_stack() {
 
 void type_stack::push_stack(string lex, int d) {
 	if (find(simple_oper.begin(), simple_oper.end(), lex) != simple_oper.end() or
-		find(compound_oper.begin(), compound_oper.end(), lex) != compound_oper.end()) {
+		find(compound_oper.begin(), compound_oper.end(), lex) != compound_oper.end() or lex == "and" or lex == "or") {
 		Operations_.push_front(lex);
 	} else {
 		typestack t;
