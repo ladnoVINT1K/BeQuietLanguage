@@ -57,7 +57,7 @@ void Syntaxer::Declarations() {
 void Syntaxer::Var() {
 	Type();
 	id_ = curr_.value;
-	if (tid_.check_exist(id_)) throw std::runtime_error("redefinition of " + id_);
+	if (tid_.check_exist(id_)) throw std::runtime_error(id_ + " was already initialized");
 	expectType(Types::Identificator);
 	if (match(";") or match(",") or match(")")) {
 		if (type_ == "let") throw std::runtime_error("let must be initialized");
@@ -67,7 +67,7 @@ void Syntaxer::Var() {
 	}
 	expect(Types::Operation, "=");
 	if (match("{")) {
-		list();
+		init_list();
 		tid_.push_id(id_, info(to_idtype(type_), depth_));
 		depth_ = 0;
 	} else {
@@ -178,7 +178,7 @@ void Syntaxer::State() {
 		ReturnState();
 	} else if (match("output")) {
 		cout();
-	} else if (match("char") or match("int")
+	} else if (match("string") or match("int")
 		or match("float") or match("let") or match("massive")) {
 		Var();
 	} else {
@@ -362,6 +362,9 @@ void Syntaxer::E8() {
 		NewToken();
 		Expr();
 		expect(Types::Punctuation, ")");
+	} else if (match("{")) {
+		expr_list();
+		stack_.push_stack(infoStack(listt, Types::Literal, depth_));
 	} else if (matchType(Types::Identificator)) {
 		string call_n = curr_.value;
 		NewToken();
@@ -394,6 +397,36 @@ void Syntaxer::E8() {
 	}
 }
 
+void Syntaxer::expr_list() {
+	list_d.push("{");
+	expect(Types::Punctuation, "{");
+	while (!match("}")) {
+		if (match("{")) {
+			init_list();
+			while (match(",")) {
+				NewToken();
+				init_list();
+			}
+		} else {
+			if (first) {
+				depth_ = list_d.size();
+				Expr();
+				auto buff = stack_.pop_stack();
+				listt = buff.t_;
+				first = false;
+			} else {
+				Expr();
+				auto buff = stack_.pop_stack();
+				if (buff.t_ != to_sttype(type_)) throw std::runtime_error("different type in massive");
+				if (list_d.size() != depth_) throw std::runtime_error("different massive depth");
+			}
+
+		}
+	}
+	expect(Types::Punctuation, "}");
+	list_d.pop();
+}
+
 void Syntaxer::Iden() {
 	auto buff = tid_.check_exist(expr_);
 	if (!buff) throw std::runtime_error(expr_ + " not exist");
@@ -408,15 +441,15 @@ void Syntaxer::Iden() {
 	depth_ = 0;
 }
 
-void Syntaxer::list() {
+void Syntaxer::init_list() {
 	list_d.push("{");
 	expect(Types::Punctuation, "{");
 	while (!match("}")) {
 		if (match("{")) {
-			list();
+			init_list();
 			while (match(",")) {
 				NewToken();
-				list();
+				init_list();
 			}
 		} else {
 			Expr();

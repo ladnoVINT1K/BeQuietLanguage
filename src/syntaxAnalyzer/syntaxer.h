@@ -4,7 +4,6 @@
 #include "../semanticAnalyzer/tid.h"
 #include <stack>
 
-
 class Syntaxer {
 public:
 	Syntaxer(Lexer& lexer);
@@ -21,7 +20,8 @@ private:
 	string id_, type_, unic_, expr_;
 	info_func func_;
 	param param_;
-	int depth_;
+	int depth_, first = 1;
+	typestack listt;
 	std::stack <string> list_d;
 	Lexem curr_;
 	void NewToken();
@@ -49,7 +49,8 @@ private:
 	void E7();
 	void E8();
 	void Iden();
-	void list();
+	void init_list();
+	void expr_list();
 	void cin();
 	void cout();
 	typefunc to_ftype(string type);

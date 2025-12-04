@@ -69,6 +69,8 @@ Lexem Lexer::get_lexem() {
             }
             if (res == "not" or res == "and" or res == "or") {
                 type = Types::Operation;
+            } else if (res == "true" or res == "false") {
+                type = Types::Literal;
             } else if (trie_.isExisted(res)) {
                 type = Types::Keyword;
             } else type = Types::Identificator;

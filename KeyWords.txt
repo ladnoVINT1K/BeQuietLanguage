@@ -8,11 +8,6 @@ else
 for
 while
 return
-true
-false
-or
-and
-not
 void
 massive
 input
