@@ -376,12 +376,12 @@ void Syntaxer::E8() {
 			expect(Types::Punctuation, "(");
 			vector<param> call_;
 			if (!match(")")) {
-				Expr();
+				E1();
 				auto buff = stack_.pop_stack();
 				call_.push_back({ to_ftype(buff.t_), buff.d_ });
 				while (match(",")) {
 					NewToken();
-					Expr();
+					E1();
 					buff = stack_.pop_stack();
 					call_.push_back({ to_ftype(buff.t_), buff.d_ });
 				}
