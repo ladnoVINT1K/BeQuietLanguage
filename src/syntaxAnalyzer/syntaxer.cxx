@@ -426,15 +426,25 @@ void Syntaxer::expr_list() {
 		} else {
 			if (first) {
 				depth_ = list_d.size();
-				Expr();
+				E1();
 				auto buff = stack_.pop_stack();
 				listt = buff.t_;
 				first = false;
 			} else {
-				Expr();
+				E1();
 				auto buff = stack_.pop_stack();
-				if (buff.t_ != to_sttype(type_)) throw std::runtime_error("different type in massive");
-				if (list_d.size() != depth_) throw std::runtime_error("different massive depth");
+				if (!(type_ == "float" and buff.t_ == typestack::Int) && buff.t_ != to_sttype(type_)) throw std::runtime_error("wrong type in massive");
+				if (list_d.size() != depth_) throw std::runtime_error("wrong massive depth");
+			}
+			while (match(",")) {
+				NewToken();
+				E1();
+				auto buff = stack_.pop_stack();
+				if (type_ == "int") {
+					if (buff.t_ == typestack::Float) type_ = "float";
+				}
+				if (!(type_ == "float" and buff.t_ == typestack::Int) && buff.t_ != to_sttype(type_)) throw std::runtime_error("wrong type in massive");
+				if (list_d.size() != depth_) throw std::runtime_error("wrong massive depth");
 			}
 
 		}
@@ -454,7 +464,7 @@ void Syntaxer::init_list() {
 				init_list();
 			}
 		} else {
-			Expr();
+			E1();
 			auto buff = stack_.pop_stack();
 			if (type_ == "let") {
 				if (buff.t_ == typestack::Int) type_ = "int";
@@ -463,8 +473,18 @@ void Syntaxer::init_list() {
 				else throw std::runtime_error("wrong type in massive");
 				depth_ = list_d.size();
 			}
-			if (buff.t_ != to_sttype(type_)) throw std::runtime_error("wrong type in massive");
+			if (!(type_ == "float" and buff.t_ == typestack::Int) && buff.t_ != to_sttype(type_)) throw std::runtime_error("wrong type in massive");
 			if (list_d.size() != depth_) throw std::runtime_error("wrong massive depth");
+			while (match(",")) {
+				NewToken();
+				E1();
+				auto buff = stack_.pop_stack();
+				if (type_ == "int") {
+					if (buff.t_ == typestack::Float) type_ = "float";
+				}
+				if (!(type_ == "float" and buff.t_ == typestack::Int) && buff.t_ != to_sttype(type_)) throw std::runtime_error("wrong type in massive");
+				if (list_d.size() != depth_) throw std::runtime_error("wrong massive depth");
+			}
 		}
 	}
 	expect(Types::Punctuation, "}");
