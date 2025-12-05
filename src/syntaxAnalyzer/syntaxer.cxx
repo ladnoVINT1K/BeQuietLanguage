@@ -269,7 +269,7 @@ void Syntaxer::ReturnState() {
 	if (!match(";")) {
 		Expr();
 		infoStack buff_st = stack_.pop_stack();
-		if (check_return(buff.res.t_, buff_st.t_)) {
+		if (check_return(buff.res.t_, buff_st.t_) and buff.res.d_ == buff_st.d_) {
 			return;
 		} else if (buff.res.t_ == typefunc::Let) {
 			tf_.v_[tf_.v_.size() - 1].res.t_ = to_ftype(buff_st.t_);

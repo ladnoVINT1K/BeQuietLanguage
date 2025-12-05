@@ -1,3 +1,4 @@
+#pragma once
 #include "stack.h"
 #include <iostream>
 
@@ -66,7 +67,7 @@ void type_stack::check_uno() {
 
 	if (c.d_ != 0) throw std::runtime_error("can't use uno oper for massive");
 
-	if (op == "-" and (c.t_ == typestack::Int or c.t_ == typestack::Float)){
+	if (op == "-" and (c.t_ == typestack::Int or c.t_ == typestack::Float)) {
 		push_stack(c);
 		return;
 	} else if (op == "!" and c.t_ == typestack::Bool) {
@@ -79,13 +80,13 @@ void type_stack::check_uno() {
 
 void type_stack::check_bin() {
 	infoStack c1 = Operators_.front(); Operators_.pop_front();
-	infoStack c2 = Operators_.front(); Operators_.pop_front();    
+	infoStack c2 = Operators_.front(); Operators_.pop_front();
 	string op = Operations_.front(); Operations_.pop_front();
-	if (op == "=") {
+	if (op == "=" and c2.t_ != typestack::Int and c2.t_ != typestack::Float) {
 		if (c2.l_ == Types::Identificator && c1.d_ == c2.d_ and c1.t_ == c2.t_) c2 = c1;
 		else throw std::runtime_error("error in assignment");
 		push_stack(c2);
-		return; 
+		return;
 	}
 	if (c1.d_ != 0 or c2.d_ != 0) throw std::runtime_error("can't use bin oper for massive");
 	if ((op == "and" || op == "or") && c1.t_ == typestack::Bool && c2.t_ == typestack::Bool) {
@@ -119,10 +120,10 @@ void type_stack::check_bin() {
 		infoStack res(typestack::Float, Types::Literal, 0);
 		push_stack(res);
 		return;
-	} else if((c1.t_ == typestack::Int or c1.t_ == typestack::Float) &&
+	} else if ((c1.t_ == typestack::Int or c1.t_ == typestack::Float) &&
 		(c2.t_ == typestack::Int or c2.t_ == typestack::Float)
-		&& c2.l_ == Types::Identificator &&  (op == "+=" || op == "-=" ||
-		op == "*=" || op == "/=" || op == "%=")) {
+		&& c2.l_ == Types::Identificator && (op == "+=" || op == "-=" ||
+			op == "*=" || op == "/=" || op == "%=" || op == "=")) {
 		infoStack res(c2.t_, Types::Identificator, 0);
 		push_stack(res);
 	} else if (c1.t_ != c2.t_) throw std::runtime_error("can't complicit two different types");
