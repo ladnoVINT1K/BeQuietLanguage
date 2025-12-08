@@ -371,6 +371,8 @@ void Syntaxer::E8() {
 		first = 1;
 		stack_.push_stack(infoStack(listt, Types::Literal, depth_));
 		depth_ = 0;
+	} else if (match("size")) {
+		Size();
 	} else if (matchType(Types::Identificator)) {
 		string call_n = curr_.value;
 		NewToken();
@@ -518,6 +520,27 @@ void Syntaxer::cout() {
 	infoStack buff = stack_.pop_stack();
 	if (buff.d_ > 0) throw std::runtime_error("can't output massive");
 	expect(Types::Punctuation, ")");
+}
+
+void Syntaxer::Size() {
+	expect(Types::Keyword, "size");
+	expect(Types::Punctuation, "(");
+	id_ = curr_.value;
+	expectType(Types::Identificator);
+	auto buff = tid_.check_exist(id_);
+	if (!buff) throw std::runtime_error(id_ + " not exist");
+	int dpth = 0;
+	while (match("[")) {
+		++dpth;
+		NewToken();
+		Expr();
+		if (stack_.pop_stack().t_ != typestack::Int) throw std::runtime_error("in [] must be num");
+		expect(Types::Operation, "]");
+	}
+	if (dpth > buff.value().d_) throw std::runtime_error("wrong massive depth");
+	if (dpth == buff.value().d_) throw std::runtime_error("size for massive");
+	expect(Types::Punctuation, ")");
+	stack_.push_stack(infoStack(typestack::Int, Types::Literal));
 }
 
 typefunc Syntaxer::to_ftype(string type) {

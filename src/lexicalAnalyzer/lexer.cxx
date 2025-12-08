@@ -1,4 +1,3 @@
-#pragma once
 #include "lexer.h"
 
 Lexer::Lexer(string file, Trie& trie) : trie_(trie) {
