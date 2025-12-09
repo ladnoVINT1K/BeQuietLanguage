@@ -74,7 +74,7 @@ void Syntaxer::Var() {
 		Expr();
 		infoStack buff = stack_.pop_stack();
 		check_init(type_, buff.t_);
-		tid_.push_id(id_, info(to_idtype(buff.t_), depth_, buff.v_));
+		tid_.push_id(id_, info(to_idtype(type_), depth_, buff.v_));
 	}
 }
 
@@ -86,7 +86,7 @@ void Syntaxer::Type() {
 		Type();
 		expect(Types::Punctuation, ">");
 	} else if (match("int") or match("float")
-		or match("let") or match("string")) {
+		or match("let") or match("char")) {
 		type_ = curr_.value;
 		NewToken();
 	} else {
@@ -181,7 +181,7 @@ void Syntaxer::State() {
 		ReturnState();
 	} else if (match("output")) {
 		cout();
-	} else if (match("string") or match("int")
+	} else if (match("char") or match("int")
 		or match("float") or match("let") or match("massive")) {
 		Var();
 	} else {
@@ -228,7 +228,7 @@ void Syntaxer::ForState() {
 		NewToken();
 	} else {
 		if (match("int") or match("float")
-			or match("let") or match("massive")) {
+			or match("let") or match("massive") or match("char")) {
 			Var();
 		} else {
 			Expr();
@@ -471,7 +471,7 @@ void Syntaxer::init_list() {
 			if (type_ == "let") {
 				if (buff.t_ == typestack::Int) type_ = "int";
 				else if (buff.t_ == typestack::Float) type_ = "float";
-				else if (buff.t_ == typestack::Str) type_ = "string";
+				else if (buff.t_ == typestack::Char) type_ = "char";
 				else throw std::runtime_error("wrong type in massive");
 				depth_ = list_d.size();
 			}
@@ -546,7 +546,7 @@ void Syntaxer::Size() {
 typefunc Syntaxer::to_ftype(string type) {
 	if (type == "int") return typefunc::Int;
 	if (type == "float") return typefunc::Float;
-	if (type == "string") return typefunc::String;
+	if (type == "char") return typefunc::Char;
 	if (type == "void") return typefunc::Void;
 	return typefunc::Let;
 }
@@ -554,25 +554,26 @@ typefunc Syntaxer::to_ftype(string type) {
 TypesId Syntaxer::to_idtype(string type) {
 	if (type == "int") return TypesId::Int;
 	if (type == "float") return TypesId::Float;
-	if (type == "string") return TypesId::Str;
+	if (type == "char") return TypesId::Char;
 }
 
 typefunc Syntaxer::to_ftype(TypesId type) {
 	if (type == TypesId::Int) return typefunc::Int;
 	if (type == TypesId::Float) return typefunc::Float;
-	if (type == TypesId::Str) return typefunc::String;
+	if (type == TypesId::Char) return typefunc::Char;
 	return typefunc::Let;
 }
 
 TypesId Syntaxer::to_idtype(typefunc type) {
 	if (type == typefunc::Int) return TypesId::Int;
 	if (type == typefunc::Float) return TypesId::Float;
-	if (type == typefunc::String) return TypesId::Str;
+	if (type == typefunc::Char) return TypesId::Char;
 }
 
 void Syntaxer::check_init(string type1, typestack type2) {
 	if (((type1 == "int" or type1 == "float") and (type2 == typestack::Int or type2 == typestack::Float)) or
-		(type_ == "string" and type2 == typestack::Str) or type_ == "let") {
+		(type_ == "char" and type2 == typestack::Char) or type_ == "let" or
+		((type1 == "int" or type1 == "char") and (type2 == typestack::Int or type2 == typestack::Char))) {
 		return;
 	} else {
 		throw std::runtime_error("types don't match");
@@ -582,13 +583,15 @@ void Syntaxer::check_init(string type1, typestack type2) {
 TypesId Syntaxer::to_idtype(typestack type) {
 	if (type == typestack::Int) return TypesId::Int;
 	if (type == typestack::Float) return TypesId::Float;
-	if (type == typestack::Str) return TypesId::Str;
+	if (type == typestack::Char) return TypesId::Char;
 }
 
 bool Syntaxer::check_return(typefunc type1, typestack type2) {
 	if (((type2 == typestack::Int or type2 == typestack::Float) and
 		(type1 == typefunc::Int or type1 == typefunc::Float)) or
-		(type2 == typestack::Str and type1 == typefunc::String)) return 1;
+		(type2 == typestack::Char and type1 == typefunc::Char) or
+		((type2 == typestack::Int or type2 == typestack::Char) and
+			(type1 == typefunc::Int or type1 == typefunc::Char))) return 1;
 	else return 0;
 }
 
@@ -596,11 +599,11 @@ typefunc Syntaxer::to_ftype(typestack type) {
 	if (type == typestack::Int) return typefunc::Int;
 	if (type == typestack::Float) return typefunc::Float;
 	if (type == typestack::Void) return typefunc::Void;
-	if (type == typestack::Str) return typefunc::String;
+	if (type == typestack::Char) return typefunc::Char;
 }
 
 typestack Syntaxer::to_sttype(string type) {
 	if (type == "int") return typestack::Int;
 	if (type == "float") return typestack::Float;
-	if (type == "string") return typestack::Str;
+	if (type == "char") return typestack::Char;
 }

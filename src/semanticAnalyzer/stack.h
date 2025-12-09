@@ -15,7 +15,7 @@ enum class typestack {
     Int,
     Float,
     Void,
-    Str,
+    Char,
     Bool
 };
 

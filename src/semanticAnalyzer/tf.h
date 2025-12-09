@@ -9,7 +9,7 @@ using std::vector;
 enum class typefunc {
     Int,
     Float,
-    String,
+    Char,
     Void,
     Let
 };

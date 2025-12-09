@@ -8,7 +8,7 @@
 enum class TypesId {
     Int,
     Float,
-    Str
+    Char
 };
 
 using std::string;

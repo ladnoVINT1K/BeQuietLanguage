@@ -23,7 +23,9 @@ void type_stack::push_stack(string lex, int d) {
 			if (lex == "true" or lex == "false") {
 				t = typestack::Bool;
 			} else {
-				t = typestack::Str;
+				t = typestack::Char;
+				Operators_.push_front(infoStack(t, Types::Literal, 1, v));
+				return;
 			}
 		}
 		Operators_.push_front(infoStack(t, Types::Literal, d, v));
@@ -38,7 +40,7 @@ void type_stack::push_stack(info i) {
 	} else if (i.t_ == TypesId::Int) {
 		Operators_.push_front(infoStack(typestack::Int, cat, i.d_, i.v_));
 	} else {
-		Operators_.push_front(infoStack(typestack::Str, cat, i.d_, i.v_));
+		Operators_.push_front(infoStack(typestack::Char, cat, i.d_, i.v_));
 	}
 	return;
 }
@@ -49,8 +51,8 @@ void type_stack::push_stack(info_func i) {
 		Operators_.push_front(infoStack(typestack::Float, cat, i.res.d_));
 	} else if (i.res.t_ == typefunc::Int) {
 		Operators_.push_front(infoStack(typestack::Int, cat, i.res.d_));
-	} else if (i.res.t_ == typefunc::String) {
-		Operators_.push_front(infoStack(typestack::Str, cat, i.res.d_));
+	} else if (i.res.t_ == typefunc::Char) {
+		Operators_.push_front(infoStack(typestack::Char, cat, i.res.d_));
 	} else if (i.res.t_ == typefunc::Void) {
 		Operators_.push_front(infoStack(typestack::Void, cat, i.res.d_));
 	}
@@ -94,13 +96,20 @@ void type_stack::check_bin() {
 		push_stack(res);
 		return;
 	} else if ((op == "==" || op == "!=") and ((c1.t_ == typestack::Bool && c2.t_ == typestack::Bool) or
-		(c1.t_ == typestack::Str && c2.t_ == typestack::Str) or
+		((c1.t_ == typestack::Int or c1.t_ == typestack::Char) && (c2.t_ == typestack::Char or c2.t_ == typestack::Int)) or
 		((c1.t_ == typestack::Int or c1.t_ == typestack::Float) && (c2.t_ == typestack::Int or c2.t_ == typestack::Float)))) {
 		infoStack res(typestack::Bool, Types::Literal, 0);
 		push_stack(res);
 		return;
-	} if (c1.t_ == typestack::Str && c2.t_ == typestack::Str && op == "+") {
-		infoStack res(typestack::Str);
+	} else if ((c1.t_ == typestack::Int or c1.t_ == typestack::Char) && (c2.t_ == typestack::Char or c2.t_ == typestack::Int)
+		&& (op == "+" || op == "-")) {
+		infoStack res(typestack::Int);
+		push_stack(res);
+		return;
+	} else if ((c1.t_ == typestack::Int or c1.t_ == typestack::Char) &&
+		(c2.t_ == typestack::Int or c2.t_ == typestack::Char) &&
+		(op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=")) {
+		infoStack res(typestack::Bool, Types::Literal, 0);
 		push_stack(res);
 		return;
 	} else if ((c1.t_ == typestack::Int or c1.t_ == typestack::Float) &&
@@ -126,6 +135,11 @@ void type_stack::check_bin() {
 			op == "*=" || op == "/=" || op == "%=" || op == "=")) {
 		infoStack res(c2.t_, Types::Identificator, 0);
 		push_stack(res);
+	} else if ((c1.t_ == typestack::Int or c1.t_ == typestack::Char) &&
+		(c2.t_ == typestack::Int or c2.t_ == typestack::Char)
+		&& c2.l_ == Types::Identificator && (op == "+=" || op == "-=")) {
+		infoStack res(c2.t_, Types::Identificator, 0);
+		push_stack(res);
 	} else if (c1.t_ != c2.t_) throw std::runtime_error("can't complicit two different types");
 	else throw std::runtime_error("error in check_bin!");
 }
@@ -144,5 +158,5 @@ infoStack type_stack::pop_stack() {
 typestack type_stack::to_stackt(TypesId type) {
 	if (type == TypesId::Int) return typestack::Int;
 	if (type == TypesId::Float) return typestack::Float;
-	if (type == TypesId::Str) return typestack::Str;
+	if (type == TypesId::Char) return typestack::Char;
 }

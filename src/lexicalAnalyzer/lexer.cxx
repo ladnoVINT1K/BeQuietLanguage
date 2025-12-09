@@ -110,7 +110,8 @@ Lexem Lexer::get_lexem() {
             if (pos_ < end_) {
                 res += *(pos_++);
                 ++current_column_;
-                type = Types::Literal;
+                if (res.size() > 3) type = Types::ELSE;
+                else type = Types::Literal;
             } else {
                 type = Types::ELSE;
             }
@@ -123,6 +124,8 @@ Lexem Lexer::get_lexem() {
             if (pos_ < end_) {
                 res += *(pos_++);
                 ++current_column_;
+                if (res.size() > 3) type = Types::ELSE;
+                else type = Types::Literal;
                 type = Types::Literal;
             } else {
                 type = Types::ELSE;

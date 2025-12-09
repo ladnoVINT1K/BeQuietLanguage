@@ -1,7 +1,7 @@
 def 
 int
+char
 float
-string
 let
 if
 else
@@ -12,3 +12,4 @@ void
 massive
 input
 output
+size
