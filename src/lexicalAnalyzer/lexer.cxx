@@ -126,7 +126,6 @@ Lexem Lexer::get_lexem() {
                 ++current_column_;
                 if (res.size() > 3) type = Types::ELSE;
                 else type = Types::Literal;
-                type = Types::Literal;
             } else {
                 type = Types::ELSE;
             }
