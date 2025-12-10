@@ -24,7 +24,7 @@ void type_stack::push_stack(string lex, int d) {
 				t = typestack::Bool;
 			} else {
 				t = typestack::Char;
-				Operators_.push_front(infoStack(t, Types::Literal, 1, v));
+				Operators_.push_front(infoStack(t, Types::Literal, 0, v));
 				return;
 			}
 		}
