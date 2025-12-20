@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include "../lexicalAnalyzer/lexer.cxx"
+#include "../generation/poliz.cpp"
 #include <regex>
 #include "tid.h"
 #include "tf.h"
@@ -39,14 +40,14 @@ public:
     void push_stack(info i);
     void push_stack(infoStack i);
     void push_stack(info_func i);
-    void check_uno();
-    void check_bin();
+    void check_uno(Poliz& poliz);
+    void check_bin(Poliz& poliz);
     bool check_if();
     infoStack pop_stack();
     typestack to_stackt(TypesId type);
 private:
     deque<infoStack> Operators_;
     deque<string> Operations_;
-    const deque<string> simple_oper = { "+", "*", "/", "=", "-", "!", "<", ">", "&", "|", "%", "!" };
-    const deque<string> compound_oper = { "==", ">=", "<=", "!=", "^=", "&=", "|=", "*=", "+=", "-=" };
+    const deque<string> simple_oper = { "+", "*", "/", "=", "-", "!", "<", ">", "%" };
+    const deque<string> compound_oper = { "==", ">=", "<=", "*=", "+=", "-=", "!=", "/=" };
 };

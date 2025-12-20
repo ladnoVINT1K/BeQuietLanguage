@@ -24,7 +24,7 @@ void type_stack::push_stack(string lex, int d) {
 				t = typestack::Bool;
 			} else {
 				t = typestack::Char;
-				Operators_.push_front(infoStack(t, Types::Literal, 1, v));
+				Operators_.push_front(infoStack(t, Types::Literal, 0, v));
 				return;
 			}
 		}
@@ -63,11 +63,12 @@ void type_stack::push_stack(infoStack i) {
 	return;
 }
 
-void type_stack::check_uno() {
+void type_stack::check_uno(Poliz& poliz) {
 	infoStack c = Operators_.front(); Operators_.pop_front();
 	string op = Operations_.front(); Operations_.pop_front();
-
-	if (c.d_ != 0) throw std::runtime_error("can't use uno oper for massive");
+	poliz.push_poliz({ PolizType::UNO_OPER, op });
+	if (c.d_ != 0) throw std::
+		logic_error("can't use uno oper for massive");
 
 	if (op == "-" and (c.t_ == typestack::Int or c.t_ == typestack::Float)) {
 		push_stack(c);
@@ -76,21 +77,22 @@ void type_stack::check_uno() {
 		push_stack(c);
 		return;
 	} else {
-		throw std::runtime_error("error in uno operation");
+		throw std::logic_error("error in uno operation");
 	}
 }
 
-void type_stack::check_bin() {
+void type_stack::check_bin(Poliz& poliz) {
 	infoStack c1 = Operators_.front(); Operators_.pop_front();
 	infoStack c2 = Operators_.front(); Operators_.pop_front();
 	string op = Operations_.front(); Operations_.pop_front();
+	poliz.push_poliz({ PolizType::BIN_OPER, op });
 	if (op == "=" and c2.t_ != typestack::Int and c2.t_ != typestack::Float) {
 		if (c2.l_ == Types::Identificator && c1.d_ == c2.d_ and c1.t_ == c2.t_) c2 = c1;
-		else throw std::runtime_error("error in assignment");
+		else throw std::logic_error("error in assignment");
 		push_stack(c2);
 		return;
 	}
-	if (c1.d_ != 0 or c2.d_ != 0) throw std::runtime_error("can't use bin oper for massive");
+	if (c1.d_ != 0 or c2.d_ != 0) throw std::logic_error("can't use bin oper for massive");
 	if ((op == "and" || op == "or") && c1.t_ == typestack::Bool && c2.t_ == typestack::Bool) {
 		infoStack res(typestack::Bool, Types::Literal, 0);
 		push_stack(res);
@@ -125,14 +127,17 @@ void type_stack::check_bin() {
 		return;
 	} else if ((c1.t_ == typestack::Int or c1.t_ == typestack::Float) &&
 		(c2.t_ == typestack::Int or c2.t_ == typestack::Float) &&
-		(op == "+" || op == "-" || op == "*" || op == "/" || op == "%")) {
+		(op == "+" || op == "-" || op == "*" || op == "/")) {
 		infoStack res(typestack::Float, Types::Literal, 0);
 		push_stack(res);
 		return;
 	} else if ((c1.t_ == typestack::Int or c1.t_ == typestack::Float) &&
 		(c2.t_ == typestack::Int or c2.t_ == typestack::Float)
 		&& c2.l_ == Types::Identificator && (op == "+=" || op == "-=" ||
-			op == "*=" || op == "/=" || op == "%=" || op == "=")) {
+			op == "*=" || op == "/=" || op == "=")) {
+		infoStack res(c2.t_, Types::Identificator, 0);
+		push_stack(res);
+	} else if (c1.t_ == typestack::Int && c2.t_ == typestack::Int && c2.l_ == Types::Identificator && op == "%=") {
 		infoStack res(c2.t_, Types::Identificator, 0);
 		push_stack(res);
 	} else if ((c1.t_ == typestack::Int or c1.t_ == typestack::Char) &&
@@ -140,8 +145,8 @@ void type_stack::check_bin() {
 		&& c2.l_ == Types::Identificator && (op == "+=" || op == "-=")) {
 		infoStack res(c2.t_, Types::Identificator, 0);
 		push_stack(res);
-	} else if (c1.t_ != c2.t_) throw std::runtime_error("can't complicit two different types");
-	else throw std::runtime_error("error in check_bin!");
+	} else if (c1.t_ != c2.t_) throw std::logic_error("can't complicit two different types");
+	else throw std::logic_error("error in check_bin!");
 }
 
 bool type_stack::check_if() {

@@ -3,11 +3,12 @@
 #include "../semanticAnalyzer/tf.cpp"
 #include "../semanticAnalyzer/tid.cpp"
 #include <stack>
+#include "../generation/poliz.cpp"
 
 class Syntaxer {
 public:
-	Syntaxer(Lexer& lexer);
-	bool syntax();
+	Syntaxer(Lexer& lexer, tf& tf);
+	Poliz syntax();
 	bool match(const std::string& value);
 	void expect(Types type, const std::string& value);
 	void expectType(Types type);
@@ -15,15 +16,15 @@ public:
 private:
 	Lexer& lexer_;
 	tree_tid tid_;
-	tf tf_;
+	tf& tf_;
 	type_stack stack_;
 	string id_, type_, unic_, expr_;
 	info_func func_;
 	param param_;
-	int depth_, first = 1;
+	int depth_, first = 1, main = 0;
 	typestack listt;
-	std::stack <string> list_d;
 	Lexem curr_;
+	Poliz poliz_;
 	void NewToken();
 	void Prog();
 	void Declarations();
@@ -62,4 +63,5 @@ private:
 	TypesId to_idtype(typestack type);
 	void check_init(string type1, typestack type2);
 	bool check_return(typefunc type1, typestack type2);
+	string to_str(typestack type);
 };

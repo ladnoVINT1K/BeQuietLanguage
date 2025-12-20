@@ -7,16 +7,32 @@ tree_tid::tree_tid() {
 
 void tree_tid::push_id(string name, info i) {
     auto ptr = &s_.front();
-    if (check_exist(name)) return;
+    if (check_exist_init(name)) return;
     ptr->insert({ name, i });
     return;
 }
 
-std::optional<info> tree_tid::check_exist(string name) {
+std::optional<info> tree_tid::check_exist_init(string name) {
+    auto i = s_.front();
+    if (i.find(name) != i.end()) return (i.find(name))->second;
+    return {};
+}
+
+std::optional<info> tree_tid::check_exist_expr(string name) {
     for (auto i : s_) {
         if (i.find(name) != i.end()) return (i.find(name))->second;
     }
     return {};
+}
+
+void tree_tid::change_val(string name, string val) {
+    for (auto& i : s_) {
+        auto it = i.find(name);
+        if (it != i.end()) {
+            it->second.v_ = val;
+            return;
+        }
+    }
 }
 
 void tree_tid::create_tid() {
@@ -26,7 +42,8 @@ void tree_tid::create_tid() {
 
 void tree_tid::delete_tid() {
     if (s_.size() == 1)
-        throw std::runtime_error("don't delete root TID :)");
+        throw std::
+        logic_error("don't delete root TID :)");
     else {
         s_.pop_front();
     }

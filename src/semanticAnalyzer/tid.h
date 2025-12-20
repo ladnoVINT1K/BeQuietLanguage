@@ -31,7 +31,9 @@ public:
     tree_tid();
 
     void push_id(string name, info i);
-    optional<info> check_exist(string name);
+    optional<info> check_exist_init(string name);
+    optional<info> check_exist_expr(string name);
+    void change_val(string name, string val);
     void create_tid();
     void delete_tid();
 private:
