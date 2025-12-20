@@ -1,35 +1,43 @@
-#include "../lexicalAnalyzer/lexer.h"
+#include "../lexicalAnalyzer/lexer.cxx"
+#include "../semanticAnalyzer/stack.cpp"
+#include "../semanticAnalyzer/tf.cpp"
+#include "../semanticAnalyzer/tid.cpp"
+#include <stack>
+#include "../generation/poliz.cpp"
 
 class Syntaxer {
 public:
-	Syntaxer(Lexer& lexer);
-	bool syntax();
+	Syntaxer(Lexer& lexer, tf& tf);
+	Poliz syntax();
 	bool match(const std::string& value);
 	void expect(Types type, const std::string& value);
 	void expectType(Types type);
 	bool matchType(Types type);
 private:
 	Lexer& lexer_;
+	tree_tid tid_;
+	tf& tf_;
+	type_stack stack_;
+	string id_, type_, unic_, expr_;
+	info_func func_;
+	param param_;
+	int depth_, first = 1, main = 0;
+	typestack listt;
 	Lexem curr_;
+	Poliz poliz_;
 	void NewToken();
 	void Prog();
 	void Declarations();
-	void Declaration();
 	void Var();
 	void Type();
-	void Init();
 	void Func();
 	void TypeF();
 	void Params();
-	void Param();
 	void FuncR();
 	void State();
 	void MState();
 	void IfState();
-	void IfStateTail();
 	void ForState();
-	void ForStateTail();
-	void A();
 	void WhileState();
 	void ReturnState();
 	void Expr();
@@ -41,12 +49,19 @@ private:
 	void E6();
 	void E7();
 	void E8();
-	void CI();
-	void Call();
-	void CallTail();
-	void Args();
-	void Iden();
-	void list();
+	void Size();
+	void init_list();
+	void expr_list();
 	void cin();
 	void cout();
+	typefunc to_ftype(string type);
+	typefunc to_ftype(TypesId type);
+	typefunc to_ftype(typestack type);
+	typestack to_sttype(string type);
+	TypesId to_idtype(string type);
+	TypesId to_idtype(typefunc type);
+	TypesId to_idtype(typestack type);
+	void check_init(string type1, typestack type2);
+	bool check_return(typefunc type1, typestack type2);
+	string to_str(typestack type);
 };

@@ -30,7 +30,7 @@ private:
     int current_line_ = 1;
     int current_column_ = 1;
     Trie& trie_;
-    const vector <char> simple_oper = { '+', '*', '/', '=', '-', '!', '<', '>', '&', '|', '%', '^', '[', ']', '.', '!' };
-    const vector <string> compound_oper = { "==", ">=", "<=", "!=", "^=", "&=", "|=", "*=", "+=", "-=" };
+    const vector <char> simple_oper = { '+', '*', '/', '=', '-', '!', '<', '>', '%', '^', '[', ']', '.', '!' };
+    const vector <string> compound_oper = { "==", ">=", "<=", "!=", "*=", "+=", "-=", "/=" };
     Lexem make_lexem(Types type, const std::string& value, int line, int col);
 };

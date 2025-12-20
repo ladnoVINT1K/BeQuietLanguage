@@ -1,14 +1,117 @@
-def int fastpow(int p, int q) {
-    if (q < 0) {
-        return 1 / fastpow(p, -1 * q);
-    } else {
-        if (q > 0) {
-            if (q % 2 == 0) {
-                return fastpow(p, q / 2) * fastpow(p, q / 2);
-            } else {
-                return fastpow(p, q - 1) * p;
+def massive<int> build_bad_char_table(massive<char> pattern) {
+    int pattern_len = size(pattern);
+    massive<int> bad_char = {pattern_len, pattern_len, pattern_len, pattern_len, pattern_len,
+                             pattern_len, pattern_len, pattern_len, pattern_len, pattern_len,
+                             pattern_len, pattern_len, pattern_len, pattern_len, pattern_len,
+                             pattern_len, pattern_len, pattern_len, pattern_len, pattern_len,
+                             pattern_len, pattern_len, pattern_len, pattern_len, pattern_len,
+                             pattern_len};
+    
+    for (int i = 0; i < pattern_len - 1; i = i + 1) {
+        int index = pattern[i] - 'a';
+        if (index >= 0 and index < 26) {
+            bad_char[index] = pattern_len - 1 - i;
+        };
+    };
+    
+    return bad_char;
+};
+
+def massive<int> build_good_suffix_table(massive<char> pattern) {
+    int pattern_len = size(pattern);
+    
+    massive<int> good_suffix = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    
+    if (pattern_len > 50) {
+        return good_suffix; // Возвращаем пустой для слишком длинных
+    };
+    
+    for (int i = 0; i < pattern_len; i = i + 1) {
+        good_suffix[i] = pattern_len;
+    };
+    
+    for (int i = 1; i < pattern_len; i = i + 1) {
+        int j = 0;
+        while (j < pattern_len - i and pattern[j] == pattern[i + j]) {
+            j = j + 1;
+        };
+        if (j == pattern_len - i) {
+            if (pattern_len - i - 1 >= 0) {
+                good_suffix[pattern_len - i - 1] = i;
             };
         };
     };
-    return 1;
+    
+    if (pattern_len - 1 >= 0) {
+        good_suffix[pattern_len - 1] = 1;
+    };
+    
+    return good_suffix;
+};
+
+def int boyer_moore_search(massive<char> text, massive<char> pattern) {
+    int text_len = size(text);
+    int pattern_len = size(pattern);
+
+    if (pattern_len == 0) {
+        return 0;
+    };
+    if (pattern_len > text_len) {
+        return -1;
+    };
+    if (pattern_len > 50) {
+        return -1; 
+    };
+    
+    massive<int> bad_char = build_bad_char_table(pattern);
+    massive<int> good_suffix = build_good_suffix_table(pattern);
+    
+    int i = 0;
+    while (i <= text_len - pattern_len) {
+        int j = pattern_len - 1;
+        
+        while (j >= 0 and pattern[j] == text[i + j]) {
+            j = j - 1;
+        };
+        
+        if (j < 0) {
+            return i;
+        } else {
+            int char_idx = text[i + j] - 'a';
+            int shift1 = pattern_len;
+            
+            if (char_idx >= 0 and char_idx < 26) {
+                shift1 = bad_char[char_idx] - (pattern_len - 1 - j);
+            };
+            
+            int shift2 = 0;
+            if (j >= 0 and j < pattern_len) {
+                shift2 = good_suffix[j];
+            };
+            
+            int shift = shift1;
+            if (shift2 > shift1) {
+                shift = shift2;
+            };
+            
+            if (shift <= 0) {
+                shift = 1;
+            };
+            
+            i = i + shift;
+        };
+    };
+    
+    return -1;
+};
+
+def int main() {
+    massive <char> text = {'a', 'g', 's', 'd', 's', 's', 's', 'q', 'q', 'a', 'b', 'd', 'f', 'a', 'b', 'c', 'r', 'q'};
+    massive <char> pattern = {'a', 'g'};
+    output(boyer_moore_search(text, pattern));
+    return 0;
 };

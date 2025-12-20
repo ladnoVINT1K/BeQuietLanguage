@@ -63,14 +63,17 @@ Lexem Lexer::get_lexem() {
         } else if (isalpha(*pos_) or *pos_ == '_') {
             res += (*(pos_++));
             ++current_column_;
+            bool num = false;;
             while (pos_ < end_ and (isalnum(*pos_) or *pos_ == '_')) {
                 res += (*(pos_++));
+                if ((*pos_ >= '0' and *pos_ <= '9') or *pos_ == '_') num = true;
                 ++current_column_;
             }
-            if (res == "true" or res == "false") {
-                type = Types::Literal; 
-            } else if (res == "not" or res == "and" or res == "or") {
+            if (num) type = Types::Identificator;
+            else if (res == "not" or res == "and" or res == "or") {
                 type = Types::Operation;
+            } else if (res == "true" or res == "false") {
+                type = Types::Literal;
             } else if (trie_.isExisted(res)) {
                 type = Types::Keyword;
             } else type = Types::Identificator;
@@ -91,7 +94,7 @@ Lexem Lexer::get_lexem() {
             if (res[res.size() - 1] == '.') {
                 type = Types::ELSE;
             } else type = Types::Literal;
-        } else if (*pos_ == ',' or *pos_ == ';' or *pos_ == '(' or *pos_ == ')' or *pos_ == '{' or *pos_ == '}' or *pos_ == '<' or *pos_ == '>') {
+        } else if (*pos_ == ',' or *pos_ == ';' or *pos_ == '(' or *pos_ == ')' or *pos_ == '{' or *pos_ == '}') {
             res += *pos_;
             type = Types::Punctuation;
             ++pos_;
@@ -110,7 +113,8 @@ Lexem Lexer::get_lexem() {
             if (pos_ < end_) {
                 res += *(pos_++);
                 ++current_column_;
-                type = Types::Literal;
+                if (res.size() > 3) type = Types::ELSE;
+                else type = Types::Literal;
             } else {
                 type = Types::ELSE;
             }
@@ -123,7 +127,8 @@ Lexem Lexer::get_lexem() {
             if (pos_ < end_) {
                 res += *(pos_++);
                 ++current_column_;
-                type = Types::Literal;
+                if (res.size() > 3) type = Types::ELSE;
+                else type = Types::Literal;
             } else {
                 type = Types::ELSE;
             }
