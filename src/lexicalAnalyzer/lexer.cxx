@@ -1,4 +1,3 @@
-#pragma once
 #include "lexer.h"
 
 Lexer::Lexer(string file, Trie& trie) : trie_(trie) {
@@ -128,7 +127,8 @@ Lexem Lexer::get_lexem() {
             if (pos_ < end_) {
                 res += *(pos_++);
                 ++current_column_;
-                if (res.size() > 3) type = Types::ELSE;
+                if (res == "'\\n'") type = Types::Literal;
+                else if (res.size() > 3) type = Types::ELSE;
                 else type = Types::Literal;
             } else {
                 type = Types::ELSE;

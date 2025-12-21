@@ -170,7 +170,8 @@ void Interpreter::uno_oper() {
 			change_val(x, input);
 		}
 	} else if (poliz_.get_value(gpt_) == "output") {
-		if (x[0] == '\'') cout << x[1];
+		if (x == "'\\n'") cout << '\n';
+		else if (x[0] == '\'') cout << x[1];
 		else if (x[0] >= '0' and x[0] <= '9') {
 			if (x.find(".") != x.npos) {
 				for (int i = x.size() - 1; i >= 0; --i) {
