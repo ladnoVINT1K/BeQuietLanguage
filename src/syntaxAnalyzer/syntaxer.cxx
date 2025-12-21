@@ -84,7 +84,8 @@ void Syntaxer::Var() {
 			infoStack buff = stack_.pop_stack();
 			check_init(type_, buff.t_);
 			tid_.push_id(id_, info(to_idtype(buff.t_), buff.d_, buff.v_));
-			poliz_.push_poliz({ PolizType::COMMAND, "Init_" + to_str(buff.t_) + "_" + std::to_string(depth_) });
+			if (type_ == "let") poliz_.push_poliz({ PolizType::COMMAND, "Init_" + to_str(buff.t_) + "_" + std::to_string(depth_) });
+			else poliz_.push_poliz({ PolizType::COMMAND, "Init_" + type_ + "_" + std::to_string(depth_) });
 		}
 	} else if (match(",") or match(";") or match(")")) {
 		if (type_ == "let") throw std::logic_error("let must be initialized");
@@ -112,7 +113,8 @@ void Syntaxer::Var() {
 				check_init(type_, buff.t_);
 				tid_.push_id(id_, info(to_idtype(buff.t_), buff.d_, buff.v_));
 				tid_.push_id(id_, info(to_idtype(buff.t_), buff.d_, buff.v_));
-				poliz_.push_poliz({ PolizType::COMMAND, "Init_" + to_str(buff.t_) + "_" + std::to_string(depth_) });
+				if (type_ == "let") poliz_.push_poliz({ PolizType::COMMAND, "Init_" + to_str(buff.t_) + "_" + std::to_string(depth_) });
+				else poliz_.push_poliz({ PolizType::COMMAND, "Init_" + type_ + "_" + std::to_string(depth_) });
 			}
 		} else {
 			if (type_ == "let") throw std::logic_error("let must be initialized");
@@ -356,7 +358,7 @@ void Syntaxer::WhileState() {
 	poliz_.push_poliz({ PolizType::LITERAL, std::to_string(p1) });
 	poliz_.push_poliz({ PolizType::COMMAND, "!" });
 	poliz_.push_address(p2);
-	
+
 	expect(Types::Punctuation, "}");
 	tid_.delete_tid();
 }
