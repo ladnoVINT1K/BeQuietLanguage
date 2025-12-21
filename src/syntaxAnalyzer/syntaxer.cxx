@@ -351,13 +351,12 @@ void Syntaxer::WhileState() {
 	tid_.create_tid();
 	State();
 	MState();
-<<<<<<< HEAD
-=======
+
 	poliz_.push_poliz({ PolizType::COMMAND, "DELETE_TID" });
 	poliz_.push_poliz({ PolizType::LITERAL, std::to_string(p1) });
 	poliz_.push_poliz({ PolizType::COMMAND, "!" });
 	poliz_.push_address(p2);
->>>>>>> semantic
+	
 	expect(Types::Punctuation, "}");
 	tid_.delete_tid();
 }

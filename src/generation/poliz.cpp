@@ -1,3 +1,4 @@
+#pragma once
 #include "poliz.h"
 
 void Poliz::push_poliz(poliz_elem lex) {

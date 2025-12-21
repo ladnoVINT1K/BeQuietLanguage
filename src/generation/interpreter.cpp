@@ -1,3 +1,4 @@
+#pragma once
 #include "interpreter.h"
 
 Interpreter::Interpreter(Poliz& p, tf& tf) : tf_(tf), poliz_(p), gpt_(0) {}
