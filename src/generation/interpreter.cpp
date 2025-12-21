@@ -4,6 +4,7 @@ Interpreter::Interpreter(Poliz& p, tf& tf) : tf_(tf), poliz_(p), gpt_(0) {}
 
 void Interpreter::runtime() {
 	for (; gpt_ < poliz_.size(); ++gpt_) {
+		/*cout << gpt_ << " " << poliz_.get_value(gpt_) << '\n';*/
 		if (poliz_.get_value(gpt_) == "") return;
 		if (poliz_.get_type(gpt_) == PolizType::LITERAL or poliz_.get_type(gpt_) == PolizType::ID) {
 			opers_.push(poliz_.get_value(gpt_));
@@ -26,17 +27,21 @@ void Interpreter::runtime() {
 				}
 				opers_.pop();
 			} else if (poliz_.get_value(gpt_) == "return") {
-				string op = opers_.top();
-				if (!((op[0] >= '0' and op[0] <= '9') or op[0] == '\'' or op[0] == '-')) {
-					opers_.pop();
-					if (op.find("[") != op.npos) {
-						string name1 = op.substr(0, op.find("["));
-						int j = std::stoi(op.substr(op.find("[") + 1, op.find("]") - op.find("[") - 1));
-						op = ind_val(name1, j);
-					} else {
-						op = val_id(op);
+				if (stack_call.top().t_ != typefunc::Void) {
+					string op = opers_.top();
+					if (!((op[0] >= '0' and op[0] <= '9') or op[0] == '\'' or op[0] == '-')) {
+						opers_.pop();
+						if (op.find("[") != op.npos) {
+							string name1 = op.substr(0, op.find("["));
+							int j = std::stoi(op.substr(op.find("[") + 1, op.find("]") - op.find("[") - 1));
+							op = ind_val(name1, j);
+						} else {
+							op = val_id(op);
+						}
+						opers_.push(op);
 					}
-					opers_.push(op);
+				} else {
+					opers_.push("void");
 				}
 				gpt_ = stack_call.top().point - 1;
 				stack_call.pop();
@@ -170,9 +175,11 @@ void Interpreter::uno_oper() {
 			change_val(x, input);
 		}
 	} else if (poliz_.get_value(gpt_) == "output") {
-		if (x == "'\\n'") cout << '\n';
-		else if (x[0] == '\'') cout << x[1];
-		else if (x[0] >= '0' and x[0] <= '9') {
+		if (x == "'\\n'") {
+			cout << '\n';
+		} else if (x[0] == '\'') {
+			cout << x[1];
+		} else if (x[0] >= '0' and x[0] <= '9') {
 			if (x.find(".") != x.npos) {
 				for (int i = x.size() - 1; i >= 0; --i) {
 					if (x[i] == '0' and x[i - 1] != '.') {
@@ -187,24 +194,12 @@ void Interpreter::uno_oper() {
 				string name = x.substr(0, x.find("["));
 				int i = std::stoi(x.substr(x.find("[") + 1, x.find("]") - x.find("[") - 1));
 				x = ind_val(name, i);
-				if (x.find(".") != x.npos) {
-					for (int i = x.size() - 1; i >= 0; --i) {
-						if (x[i] == '0' and x[i - 1] != '.') {
-							x = x.substr(0, i);
-						} else break;
-					}
-				}
-				cout << x;
+				opers_.push(x);
+				uno_oper();
 			} else {
 				x = val_id(x);
-				if (x.find(".") != x.npos) {
-					for (int i = x.size() - 1; i >= 0; --i) {
-						if (x[i] == '0' and x[i - 1] != '.') {
-							x = x.substr(0, i);
-						} else break;
-					}
-				}
-				cout << x;
+				opers_.push(x);
+				uno_oper();
 			}
 		}
 	} else if (poliz_.get_value(gpt_) == "!") {

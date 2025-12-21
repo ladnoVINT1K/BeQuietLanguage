@@ -378,6 +378,7 @@ void Syntaxer::ReturnState() {
 	} else if (buff.res.t_ == typefunc::Let) {
 		tf_.v_[tf_.v_.size() - 1].res.t_ = typefunc::Void;
 	} else if (buff.res.t_ != typefunc::Void) throw std::logic_error("func " + buff.name + " must return anything");
+	poliz_.push_poliz({ PolizType::COMMAND, "return" });
 }
 
 void Syntaxer::Expr() {
