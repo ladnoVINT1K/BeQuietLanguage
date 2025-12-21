@@ -1,4 +1,3 @@
-#pragma once
 #include "interpreter.h"
 
 Interpreter::Interpreter(Poliz& p, tf& tf) : tf_(tf), poliz_(p), gpt_(0) {}
@@ -47,7 +46,7 @@ void Interpreter::runtime() {
 				opers_.pop();
 				auto func = tf_.unic_call(name);
 				vector <string> oper(func.params.size());
-				for (int i = oper.size() - 1; i >= 0 ; --i) {
+				for (int i = oper.size() - 1; i >= 0; --i) {
 					string op = opers_.top();
 					opers_.pop();
 					if (op.find("[") != op.npos) {
@@ -93,7 +92,7 @@ void Interpreter::runtime() {
 						d = std::stoi(poliz_.get_value(gpt_).substr(11));
 					}
 					if (stack_call.empty()) {
-						global_tid.push_id(name_init, info(type, d, v) );
+						global_tid.push_id(name_init, info(type, d, v));
 					} else {
 						stack_call.top().tid_.push_id(name_init, info(type, d, v));
 					}
@@ -105,14 +104,14 @@ void Interpreter::runtime() {
 				TypesId type;
 				string v = opers_.top(); opers_.pop();
 				if (!((v[0] >= '0' and v[0] <= '9') or v[0] == '\'' or v[0] == '-')) {
-					
+
 					if (v.find("[") != v.npos) {
 						string name1 = v.substr(0, v.find("["));
 						int j = std::stoi(v.substr(v.find("[") + 1, v.find("]") - v.find("[") - 1));
 						v = ind_val(name1, j);
 					} else {
 						v = val_id(v);
-						
+
 					}
 				}
 				name_init = opers_.top(); opers_.pop();
@@ -172,15 +171,39 @@ void Interpreter::uno_oper() {
 		}
 	} else if (poliz_.get_value(gpt_) == "output") {
 		if (x[0] == '\'') cout << x[1];
-		else if (x[0] >= '0' and x[0] <= '9') cout << x;
-		else if (x == "true" or x == "false") cout << x;
+		else if (x[0] >= '0' and x[0] <= '9') {
+			if (x.find(".") != x.npos) {
+				for (int i = x.size() - 1; i >= 0; --i) {
+					if (x[i] == '0' and x[i - 1] != '.') {
+						x = x.substr(0, i);
+					} else break;
+				}
+			}
+			cout << x;
+		} else if (x == "true" or x == "false") cout << x;
 		else {
 			if (x.find("[") != x.npos) {
 				string name = x.substr(0, x.find("["));
 				int i = std::stoi(x.substr(x.find("[") + 1, x.find("]") - x.find("[") - 1));
-				cout << ind_val(name, i);
+				x = ind_val(name, i);
+				if (x.find(".") != x.npos) {
+					for (int i = x.size() - 1; i >= 0; --i) {
+						if (x[i] == '0' and x[i - 1] != '.') {
+							x = x.substr(0, i);
+						} else break;
+					}
+				}
+				cout << x;
 			} else {
-				cout << val_id(x);
+				x = val_id(x);
+				if (x.find(".") != x.npos) {
+					for (int i = x.size() - 1; i >= 0; --i) {
+						if (x[i] == '0' and x[i - 1] != '.') {
+							x = x.substr(0, i);
+						} else break;
+					}
+				}
+				cout << x;
 			}
 		}
 	} else if (poliz_.get_value(gpt_) == "!") {
@@ -194,7 +217,7 @@ void Interpreter::uno_oper() {
 			string name = x.substr(0, x.find("["));
 			int i = std::stoi(x.substr(x.find("[") + 1, x.find("]") - x.find("[") - 1));
 			x = ind_val(x, i);
-		} else if ((x[0] >= 'a' and x[0] <= 'z') or x[0] == '_'){
+		} else if ((x[0] >= 'a' and x[0] <= 'z') or x[0] == '_') {
 			x = val_id(x);
 		}
 		if (x[0] >= '0' and x[0] <= '9') {
@@ -260,9 +283,9 @@ string Interpreter::list() {
 				res += val_id(op) + ",";
 			}
 			opers_.pop();
-		} else if (poliz_.get_type(gpt_) == PolizType::UNO_OPER){
+		} else if (poliz_.get_type(gpt_) == PolizType::UNO_OPER) {
 			bin_oper();
-		} 
+		}
 		++gpt_;
 		if (poliz_.get_value(gpt_) == "END_LIST") {
 			res += opers_.top();
@@ -283,7 +306,7 @@ string Interpreter::val_id(string name) {
 	if (!x1) {
 		auto x2 = global_tid.check_exist_expr(name);
 		return x2.value().v_;
-	} else { 
+	} else {
 		return x1.value().v_;
 	}
 }
@@ -477,7 +500,7 @@ void Interpreter::do_oper(string x1, string x2, string op) {
 				if (op1 >= op2) res = "true";
 				else res = "false";
 			}
-		} else if ((x2[0] >= '0' and x2[0] <= '9') or x2[0] == '-' ) {
+		} else if ((x2[0] >= '0' and x2[0] <= '9') or x2[0] == '-') {
 			int op2 = stoi(x2);
 			if (op == "+") {
 				res = std::to_string(op2 + op1);
@@ -796,7 +819,7 @@ void Interpreter::do_oper(string x1, string x2, string op) {
 			}
 		} else if (x1[0] == '\'') {
 			char op1 = x1[1];
-			if ((x2[0] >= '0' and x2[0] <= '9') or x2[0] == '-' ) {
+			if ((x2[0] >= '0' and x2[0] <= '9') or x2[0] == '-') {
 				if (op == "=") {
 					char op2 = stoi(x2);
 					ind_change(name, i, x2);
@@ -949,7 +972,7 @@ void Interpreter::do_oper(string x1, string x2, string op) {
 			}
 		} else if (x1[0] == '\'') {
 			char op1 = x1[1];
-			if ((x2[0] >= '0' and x2[0] <= '9') or x2[0] == '-' ) {
+			if ((x2[0] >= '0' and x2[0] <= '9') or x2[0] == '-') {
 				if (op == "=") {
 					char op2 = stoi(x2);
 					change_val(name, x2);
