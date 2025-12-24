@@ -87,10 +87,16 @@ void type_stack::check_bin(Poliz& poliz) {
 	string op = Operations_.front(); Operations_.pop_front();
 	poliz.push_poliz({ PolizType::BIN_OPER, op });
 	if (op == "=" and c2.t_ != typestack::Int and c2.t_ != typestack::Float) {
-		if (c2.l_ == Types::Identificator && c1.d_ == c2.d_ and c1.t_ == c2.t_) c2 = c1;
-		else throw std::logic_error("error in assignment");
-		push_stack(c2);
-		return;
+		if (c2.l_ == Types::Identificator && c1.d_ == c2.d_ and c1.t_ == c2.t_) {
+			push_stack(c2);
+			return;
+		} else throw std::logic_error("error in assignment"); 
+	} else if (op == "=" and (c1.t_ == typestack::Int or c1.t_ == typestack::Float) and
+		(c2.t_ == typestack::Int or c2.t_ == typestack::Float)) {
+			if (c2.l_ == Types::Identificator && c1.d_ == c2.d_) {
+				push_stack(c2);
+				return;
+			} else throw std::logic_error("error in assignment"); 
 	}
 	if (c1.d_ != 0 or c2.d_ != 0) throw std::logic_error("can't use bin oper for massive");
 	if ((op == "and" || op == "or") && c1.t_ == typestack::Bool && c2.t_ == typestack::Bool) {

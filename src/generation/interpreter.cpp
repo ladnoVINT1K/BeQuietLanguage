@@ -96,6 +96,7 @@ void Interpreter::runtime() {
 						v = "0.0";
 						d = std::stoi(poliz_.get_value(gpt_).substr(11));
 					}
+					if (d == 1) v = "";
 					if (stack_call.empty()) {
 						global_tid.push_id(name_init, info(type, d, v));
 					} else {
@@ -184,7 +185,7 @@ void Interpreter::uno_oper() {
 			cout << '\n';
 		} else if (x[0] == '\'') {
 			cout << x[1];
-		} else if (x[0] >= '0' and x[0] <= '9') {
+		} else if ((x[0] >= '0' and x[0] <= '9') or x[0] == '-') {
 			if (x.find(".") != x.npos) {
 				for (int i = x.size() - 1; i >= 0; --i) {
 					if (x[i] == '0' and x[i - 1] != '.') {
@@ -298,16 +299,11 @@ string Interpreter::list() {
 }
 
 string Interpreter::val_id(string name) {
-	if (stack_call.empty()) {
-		auto x2 = global_tid.check_exist_expr(name);
-		return x2.value().v_;
-	}
-	auto x1 = stack_call.top().tid_.check_exist_expr(name);
-	string res = "";
-	if (!x1) {
+	if (stack_call.empty() or !stack_call.top().tid_.check_exist_expr(name)) {
 		auto x2 = global_tid.check_exist_expr(name);
 		return x2.value().v_;
 	} else {
+		auto x1 = stack_call.top().tid_.check_exist_expr(name);
 		return x1.value().v_;
 	}
 }
@@ -315,9 +311,10 @@ string Interpreter::val_id(string name) {
 string Interpreter::ind_val(string name, int i) {
 	if (i < 0) throw std::runtime_error("index < 0");
 	string res = "";
-	if (stack_call.empty()) {
+	if (stack_call.empty() or !stack_call.top().tid_.check_exist_expr(name)) {
 		int cnt = i, j = 0;
 		auto s = global_tid.check_exist_expr(name);
+		if (s.value().v_.empty()) throw std::runtime_error("index out of range");
 		while (j < 9 and cnt > 0) {
 			if (s.value().v_[j] == ',') {
 				--cnt;
@@ -330,23 +327,9 @@ string Interpreter::ind_val(string name, int i) {
 			++j;
 		}
 		return res;
-	}
-	auto x1 = stack_call.top().tid_.check_exist_expr(name);
-	if (!x1) {
-		int cnt = i, j = 0;
-		auto s = global_tid.check_exist_expr(name);
-		while (j < s.value().v_.size() and cnt > 0) {
-			if (s.value().v_[j] == ',') {
-				--cnt;
-			}
-			++j;
-		}
-		if (cnt > 0) throw std::runtime_error("index out of range");
-		while (j < s.value().v_.size() and s.value().v_[j] != ',') {
-			res += s.value().v_[j];
-			++j;
-		}
 	} else {
+		auto x1 = stack_call.top().tid_.check_exist_expr(name);
+		if (x1.value().v_.empty()) throw std::runtime_error("index out of range");
 		int cnt = i, j = 0;
 		while (j < x1.value().v_.size() and cnt > 0) {
 			if (x1.value().v_[j] == ',') {
@@ -365,46 +348,10 @@ string Interpreter::ind_val(string name, int i) {
 
 void Interpreter::ind_change(string name, int i, string v) {
 	if (i < 0) throw std::runtime_error("index < 0");
-	if (stack_call.empty()) {
+	if (stack_call.empty() or !stack_call.top().tid_.check_exist_expr(name)) {
 		int cnt = i, j = 0;
 		auto s = global_tid.check_exist_expr(name);
-		TypesId type = s.value().t_;
-		if (type == TypesId::Int) {
-			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
-				if (v.find(".") != v.npos) v = v.substr(0, v.find("."));
-			} else {
-				throw std::runtime_error("wrong input type");
-			}
-		} else if (type == TypesId::Char) {
-			if (v.size() == 1) {
-				v = "'" + v + "'";
-			} else {
-				throw std::runtime_error("wrong input type");
-			}
-		} else {
-			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
-				if (v.find(".") == v.npos) v += ".0";
-			} else throw std::runtime_error("wrong input type");
-		}
-		while (j < s.value().v_.size() and cnt > 0) {
-			if (s.value().v_[j] == ',') {
-				--cnt;
-			}
-			++j;
-		}
-		if (cnt > 0) throw std::runtime_error("index out of range");
-		int k = j;
-		while (k < s.value().v_.size() and s.value().v_[k] != ',') {
-			++k;
-		}
-		string res = s.value().v_.substr(0, j) + v + s.value().v_.substr(0);
-		global_tid.change_val(name, res);
-		return;
-	}
-	auto x1 = stack_call.top().tid_.check_exist_expr(name);
-	if (!x1) {
-		int cnt = i, j = 0;
-		auto s = global_tid.check_exist_expr(name);
+		if (s.value().v_.empty()) throw std::runtime_error("index out of range");
 		TypesId type = s.value().t_;
 		if (type == TypesId::Int) {
 			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
@@ -438,6 +385,8 @@ void Interpreter::ind_change(string name, int i, string v) {
 		global_tid.change_val(name, res);
 		return;
 	} else {
+		auto x1 = stack_call.top().tid_.check_exist_expr(name);
+		if (x1.value().v_.empty()) throw std::runtime_error("index out of range");
 		TypesId type = x1.value().t_;
 		if (type == TypesId::Int) {
 			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
@@ -475,31 +424,7 @@ void Interpreter::ind_change(string name, int i, string v) {
 }
 
 void Interpreter::change_val(string name, string v) {
-	if (stack_call.empty()) {
-		auto s = global_tid.check_exist_expr(name);
-		TypesId type = s.value().t_;
-		if (type == TypesId::Int) {
-			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
-				if (v.find(".") != v.npos) v = v.substr(0, v.find("."));
-			} else {
-				throw std::runtime_error("wrong input type");
-			}
-		} else if (type == TypesId::Char) {
-			if (v.size() == 1) {
-				v = "'" + v + "'";
-			} else {
-				throw std::runtime_error("wrong input type");
-			}
-		} else {
-			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
-				if (v.find(".") == v.npos) v += ".0";
-			} else throw std::runtime_error("wrong input type");
-		}
-		global_tid.change_val(name, v);
-		return;
-	}
-	auto x = stack_call.top().tid_.check_exist_expr(name);
-	if (!x) {
+	if (stack_call.empty() or stack_call.top().tid_.check_exist_expr(name)) {
 		auto s = global_tid.check_exist_expr(name);
 		TypesId type = s.value().t_;
 		if (type == TypesId::Int) {
@@ -974,6 +899,9 @@ void Interpreter::do_oper(string x1, string x2, string op) {
 	} else {
 		string name = x1;
 		x1 = val_id(x1);
+		if (x1.empty()) {
+			cout << "~meow";
+		}
 		if ((((x1[0] >= '0' and x1[0] <= '9') or x1[0] == '-') and x1.find(".") != x1.npos)) {
 			double op1 = stod(x1);
 			if (((x2[0] >= '0' and x2[0] <= '9') or x2[0] == '-') and x2.find(".") != x2.npos) {
