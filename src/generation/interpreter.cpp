@@ -167,6 +167,11 @@ void Interpreter::uno_oper() {
 	} else if (poliz_.get_value(gpt_) == "input") {
 		string input;
 		std::cin >> input;
+		if (input.find(".") == (int)input.size() - 1 or std::count(input.begin(), input.end(), '.') > 1) {
+			if (input.size() != 1) {
+				throw std::runtime_error("wrong input type");
+			}
+		}
 		if (x.find("[") != x.npos) {
 			string name = x.substr(0, x.find("["));
 			int i = std::stoi(x.substr(x.find("[") + 1, x.find("]") - x.find("[") - 1));
@@ -358,11 +363,29 @@ string Interpreter::ind_val(string name, int i) {
 	return res;
 }
 
-void Interpreter::ind_change(string name, int i, string value) {
+void Interpreter::ind_change(string name, int i, string v) {
 	if (i < 0) throw std::runtime_error("index < 0");
 	if (stack_call.empty()) {
 		int cnt = i, j = 0;
 		auto s = global_tid.check_exist_expr(name);
+		TypesId type = s.value().t_;
+		if (type == TypesId::Int) {
+			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") != v.npos) v = v.substr(0, v.find("."));
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else if (type == TypesId::Char) {
+			if (v.size() == 1) {
+				v = "'" + v + "'";
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else {
+			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") == v.npos) v += ".0";
+			} else throw std::runtime_error("wrong input type");
+		}
 		while (j < s.value().v_.size() and cnt > 0) {
 			if (s.value().v_[j] == ',') {
 				--cnt;
@@ -374,7 +397,7 @@ void Interpreter::ind_change(string name, int i, string value) {
 		while (k < s.value().v_.size() and s.value().v_[k] != ',') {
 			++k;
 		}
-		string res = s.value().v_.substr(0, j) + value + s.value().v_.substr(0);
+		string res = s.value().v_.substr(0, j) + v + s.value().v_.substr(0);
 		global_tid.change_val(name, res);
 		return;
 	}
@@ -382,6 +405,24 @@ void Interpreter::ind_change(string name, int i, string value) {
 	if (!x1) {
 		int cnt = i, j = 0;
 		auto s = global_tid.check_exist_expr(name);
+		TypesId type = s.value().t_;
+		if (type == TypesId::Int) {
+			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") != v.npos) v = v.substr(0, v.find("."));
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else if (type == TypesId::Char) {
+			if (v.size() == 1) {
+				v = "'" + v + "'";
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else {
+			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") == v.npos) v += ".0";
+			} else throw std::runtime_error("wrong input type");
+		}
 		while (j < s.value().v_.size() and cnt > 0) {
 			if (s.value().v_[j] == ',') {
 				--cnt;
@@ -393,10 +434,28 @@ void Interpreter::ind_change(string name, int i, string value) {
 		while (k < s.value().v_.size() and s.value().v_[k] != ',') {
 			++k;
 		}
-		string res = s.value().v_.substr(0, j) + value + s.value().v_.substr(0);
+		string res = s.value().v_.substr(0, j) + v + s.value().v_.substr(0);
 		global_tid.change_val(name, res);
 		return;
 	} else {
+		TypesId type = x1.value().t_;
+		if (type == TypesId::Int) {
+			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") != v.npos) v = v.substr(0, v.find("."));
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else if (type == TypesId::Char) {
+			if (v.size() == 1) {
+				v = "'" + v + "'";
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else {
+			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") == v.npos) v += ".0";
+			} else throw std::runtime_error("wrong input type");
+		}
 		int cnt = i, j = 0;
 		while (j < x1.value().v_.size() and cnt > 0) {
 			if (x1.value().v_[j] == ',') {
@@ -409,23 +468,80 @@ void Interpreter::ind_change(string name, int i, string value) {
 		while (k < x1.value().v_.size() and x1.value().v_[k] != ',') {
 			++k;
 		}
-		string res = x1.value().v_.substr(0, j) + value + x1.value().v_.substr(k);
+		string res = x1.value().v_.substr(0, j) + v + x1.value().v_.substr(k);
 		stack_call.top().tid_.change_val(name, res);
 		return;
 	}
 }
 
-void Interpreter::change_val(string name, string value) {
+void Interpreter::change_val(string name, string v) {
 	if (stack_call.empty()) {
-		global_tid.change_val(name, value);
+		auto s = global_tid.check_exist_expr(name);
+		TypesId type = s.value().t_;
+		if (type == TypesId::Int) {
+			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") != v.npos) v = v.substr(0, v.find("."));
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else if (type == TypesId::Char) {
+			if (v.size() == 1) {
+				v = "'" + v + "'";
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else {
+			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") == v.npos) v += ".0";
+			} else throw std::runtime_error("wrong input type");
+		}
+		global_tid.change_val(name, v);
 		return;
 	}
 	auto x = stack_call.top().tid_.check_exist_expr(name);
 	if (!x) {
-		global_tid.change_val(name, value);
+		auto s = global_tid.check_exist_expr(name);
+		TypesId type = s.value().t_;
+		if (type == TypesId::Int) {
+			if (v[0] != '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") != v.npos) v = v.substr(0, v.find("."));
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else if (type == TypesId::Char) {
+			if (v.size() == 1) {
+				v = "'" + v + "'";
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else {
+			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") == v.npos) v += ".0";
+			} else throw std::runtime_error("wrong input type");
+		}
+		global_tid.change_val(name, v);
 		return;
 	} else {
-		stack_call.top().tid_.change_val(name, value);
+		auto s = stack_call.top().tid_.check_exist_expr(name);
+		TypesId type = s.value().t_;
+		if (type == TypesId::Int) {
+			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") != v.npos) v = v.substr(0, v.find("."));
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else if (type == TypesId::Char) {
+			if (v.size() == 1) {
+				v = "'" + v + "'";
+			} else {
+				throw std::runtime_error("wrong input type");
+			}
+		} else {
+			if (v[0] == '-' or (v[0] >= '0' and v[0] <= '9')) {
+				if (v.find(".") == v.npos) v += ".0";
+			} else throw std::runtime_error("wrong input type");
+		}
+		stack_call.top().tid_.change_val(name, v);
 	}
 }
 
